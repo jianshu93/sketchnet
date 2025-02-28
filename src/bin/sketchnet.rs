@@ -279,8 +279,6 @@ fn parse_embedding_cmd(
 
 #[doc(hidden)]
 pub fn main() {
-    // TODO: to put in clap ? just for now select at compile time
-    let do_vcmpr = true;
     //
     println!("initializing default logger from environment ...");
     env_logger::Builder::from_default_env().init();
@@ -426,7 +424,7 @@ pub fn main() {
     // ===================
     //
     let matches = Command::new("sketchnet")
-        .about("Efficient and Robust Network Embedding via High-Order Proximity Preservation or Recursive Sketching")
+        .about("Efficient and Robust Network/Graph Embedding via High-Order Proximity Preservation or Recursive Sketching")
         .arg_required_else_help(true)
         .arg(
             Arg::new("csvfile")
