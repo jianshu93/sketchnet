@@ -939,7 +939,7 @@ pub fn estimate_centric_auc<F, G, E>(
     //
     let embedded = &embedder(trimat);
     if !embedded.is_symetric() {
-        log::warn!("method estimate_vcmpr only possible for symetric embeddings");
+        log::warn!("method estimate_eAUC only possible for symetric embeddings");
     }
     let nb_nodes = csmat.shape().0;
     let nb_to_sample = 2000;
@@ -956,7 +956,7 @@ pub fn estimate_centric_auc<F, G, E>(
     //
     // select nodes we will test
     let nb_sampled = selected_nodes.len();
-    log::info!("estimate_vcmpr nb nodes sampled : {}", nb_sampled);
+    log::info!("estimate_eAUC nb nodes sampled : {}", nb_sampled);
     // This function returns integral auc score on deleted edge
     let count_deleted = |i: usize| -> usize {
         let mut nb_deleted = 0;
