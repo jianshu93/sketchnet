@@ -1,6 +1,14 @@
-# SketchNET
+# SketchNET: Efficient and Robust Network/Graph Embedding via High-Order Proximity Preservation or Recursive Sketching
 
-This crate provides ,as a library and an executable,embedding of directed or undirected network/graph with positively weighted edges.
+## Quick Install
+
+```bash
+## Linux
+conda install -c bioconda -c conda-forge sketchnet
+
+```
+
+we provide ,as a library and an executable, embedding of directed or undirected network/graph with positively weighted edges.
 
 
   - For simple graphs, without data attached to nodes/labels, there are 2 (rust) modules **nodesketch** and **atp**. A simple executable with a validation option based on link prediction is also provided.
