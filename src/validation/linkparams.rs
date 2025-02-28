@@ -19,7 +19,7 @@ pub struct ValidationParams {
 } // end of ValidationParams
 
 impl ValidationParams {
-    pub fn new(delete_fraction: f64, nbpass: usize, symetric: bool, centric: bool) -> Self {
+    pub fn new(delete_fraction: f64, nbpass: usize, symetric: bool, centric: bool, vcmpr: bool) -> Self {
         ValidationParams {
             delete_fraction,
             nbpass,
