@@ -630,7 +630,7 @@ pub fn main() {
                         &f,
                     );
                 }
-                if params.do_vcmpr {
+                if params.do_vcmpr() {
                     // if vcmpr is asked we produce also standard precision and recall for comparison
                     link::estimate_precision(
                         &trimat.to_csr(),
