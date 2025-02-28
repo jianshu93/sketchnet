@@ -396,14 +396,14 @@ pub fn main() {
             Arg::new("centric")          // do we process amino acid file, default is dna, pass --aa
                .long("centric")
                .action(clap::ArgAction::SetTrue)
-                .help("To ask for a centric validation pass after standard one, require no value")
-            )
-        arg(
+               .help("To ask for a centric validation pass after standard one, require no value"),
+        )
+        .arg(
             Arg::new("vcmpr")          // do we process amino acid file, default is dna, pass --aa
                .long("vcmpr")
                .action(clap::ArgAction::SetTrue)
-               .help("To ask for a VCMPR and precision/recall validation pass after standard one, require no value")
-            )
+               .help("To ask for a VCMPR and precision/recall validation pass after standard one, require no value"),
+        )
         .subcommand(hope_cmd.clone())
         .subcommand(sketch_cmd.clone());
 
