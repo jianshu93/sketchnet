@@ -1,6 +1,6 @@
-# Graphembed
+# SketchNET
 
-This crate provides ,as a library and an executable,embedding of directed or undirected graphs with positively weighted edges.
+This crate provides ,as a library and an executable,embedding of directed or undirected network/graph with positively weighted edges.
 
 
   - For simple graphs, without data attached to nodes/labels, there are 2 (rust) modules **nodesketch** and **atp**. A simple executable with a validation option based on link prediction is also provided.
@@ -149,21 +149,21 @@ so to the required dimension to get a valid embedding in $R^{n}$.
 - The *embed* module takes embedding and possibly validation commands (link prediction task) in one directive.  
 The general syntax is :
 
-    embed file_description [validation_command --validation_arguments] sketching mode  --embedding_arguments  
+    sketchnet file_description [validation_command --validation_arguments] sketching mode  --embedding_arguments  
     for example:  
 
   For a symetric graph we get:
 
 - just embedding:
-        embed --csv ./Data/Graphs/Orkut/com-orkut.ungraph.txt --symetric  sketching --decay 0.2  --dim 200 --nbiter 
+        sketchnet --csv ./Data/Graphs/Orkut/com-orkut.ungraph.txt --symetric  sketching --decay 0.2  --dim 200 --nbiter 
 
 - embedding and validation:
  
-        embed --csv ./Data/Graphs/Orkut/com-orkut.ungraph.txt  --symetric  validation --nbpass 5 --skip 0.15 sketching --decay 0.2  --dim 200 --nbiter 5
+        sketchnet --csv ./Data/Graphs/Orkut/com-orkut.ungraph.txt  --symetric  validation --nbpass 5 --skip 0.15 sketching --decay 0.2  --dim 200 --nbiter 5
 
 For an asymetric graph we get 
 
-       embed --csv ./Data/Graphs/asymetric.csv  validation --nbpass 5 --skip 0.15 sketching --decay 0.2  --dim 200 --nbiter 5 
+       sketchnet --csv ./Data/Graphs/asymetric.csv  validation --nbpass 5 --skip 0.15 sketching --decay 0.2  --dim 200 --nbiter 5 
 
 
     More details can be found in docs of the embed module. Use cargo doc --no-dep --bin embed (and cargo doc --no-dep) as usual.
