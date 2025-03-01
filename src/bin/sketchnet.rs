@@ -209,14 +209,8 @@ fn parse_validation_cmd(
     } else {
         log::info!("no centric pass on link prediction");
     }
-    let vcmpr: bool = matches.get_flag("vcmpr");
-    if vcmpr {
-        log::info!("doing a vcmpr pass after standard AUC link prediction");
-    } else {
-        log::info!("no vcmpr pass on link prediction");
-    }
     //
-    let validation_params = ValidationParams::new(delete_proba, nbpass, symetric, centric, vcmpr);
+    let validation_params = ValidationParams::new(delete_proba, nbpass, symetric, centric);
     //
     let embedding_cmd_res = parse_embedding_cmd(matches, symetric);
 
@@ -400,13 +394,7 @@ pub fn main() {
             Arg::new("centric")          // do we process amino acid file, default is dna, pass --aa
                .long("centric")
                .action(clap::ArgAction::SetTrue)
-               .help("To ask for a centric validation pass after standard one, require no value"),
-            )
-        .arg(
-            Arg::new("vcmpr")          // do we process amino acid file, default is dna, pass --aa
-               .long("vcmpr")
-               .action(clap::ArgAction::SetTrue)
-               .help("To ask for a vcmpr validation pass after standard one, require no value"),
+                .help("--centric To ask for a centric validation pass after standard one, require no value")
             )
         .subcommand(hope_cmd.clone())
         .subcommand(sketch_cmd.clone());
@@ -605,7 +593,6 @@ pub fn main() {
                         params.get_nbpass(),
                         symetric_graph,
                         params.do_centric(),
-                        params.do_vcmpr(),
                     );
                 }
                 log::debug!("validation parameters : {:?}", params);
@@ -625,7 +612,7 @@ pub fn main() {
                     &f,
                 );
                 if params.do_centric() {
-                    if params.do_vcmpr() {
+                    if do_vcmpr {
                         // if vcmpr is asked we produce also standard precision and recall for comparison
                         link::estimate_precision(
                             &trimat.to_csr(),
@@ -748,7 +735,7 @@ pub fn main() {
                     // we compare with VCMPR
                     if validation_params.do_centric() {
                         log::info!("doing precision estimation normal and centric modes ");
-                        if validation_params.do_vcmpr() {
+                        if do_vcmpr {
                             
                             //if vcmpr is asked we produce also standard precision and recall for comparison
                             link::estimate_precision(

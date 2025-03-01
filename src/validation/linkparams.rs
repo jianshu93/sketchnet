@@ -14,18 +14,15 @@ pub struct ValidationParams {
     symetric: bool,
     /// centric flag to ask for centric auc computation
     centric: bool,
-    /// VCMPR flag to ask for and compute VCMPR and precision/recall
-    vcmpr: bool,
 } // end of ValidationParams
 
 impl ValidationParams {
-    pub fn new(delete_fraction: f64, nbpass: usize, symetric: bool, centric: bool, vcmpr: bool) -> Self {
+    pub fn new(delete_fraction: f64, nbpass: usize, symetric: bool, centric: bool) -> Self {
         ValidationParams {
             delete_fraction,
             nbpass,
             symetric,
             centric,
-            vcmpr,
         }
     }
 
@@ -48,10 +45,4 @@ impl ValidationParams {
     pub fn do_centric(&self) -> bool {
         self.centric
     }
-
-    /// retruns true if a VCMPR computation is required after standard AUC link prediction validation
-    pub fn do_vcmpr(&self) -> bool {
-        self.vcmpr
-    }
-
 } // end of ValidationParams
