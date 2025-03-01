@@ -29,14 +29,14 @@
 //!
 //! Hope mode for embedding with Adamic Adar approximation using approximation with a target rank of 100 and 10 iterations
 //! in the range approximations:  
-//! sketchnet --csv "p2p-Gnutella09.txt" --symetric "true"  embedding hope  rank --targetrank 100 --nbiter 10 --output outputname
+//! embed --csv "p2p-Gnutella09.txt" --symetric "true"  embedding hope  rank --targetrank 100 --nbiter 10 --output outputname
 //!
 //! with precision target:  
-//! sketchnet --csv "p2p-Gnutella08.txt" --symetric "true" embedding hope   precision --epsil 0.2 --maxrank 1000 --blockiter 3 --output outputname
+//! embed --csv "p2p-Gnutella08.txt" --symetric "true" embedding hope   precision --epsil 0.2 --maxrank 1000 --blockiter 3 --output outputname
 //!
 //! Sketching embedding with 3 hop neighbourhood, weight decay factor of 0.1 at each hop, dimension 500 :
 //!
-//! sketchnet --csv "p2p-Gnutella08.txt"  --symetric "true" embedding sketching --decay 0.1  --dim 500 --nbiter 3 --output outputname
+//! embed --csv "p2p-Gnutella08.txt"  --symetric "true" embedding sketching --decay 0.1  --dim 500 --nbiter 3 --output outputname
 //!
 //!
 //! 2. **Validation mode with estimation of AUC on link prediction task**.
@@ -51,11 +51,11 @@
 //!     This flag is optional and asks for one pass of centric AUC computation after standard AUC link prediction (See [sketchnet::validation::link::estimate_centric_auc()])
 //!
 //!
-//!     sketchnet --csv "p2p-Gnutella08.txt" --symetric "true" validation [--centric] --nbpass 10 --skip 0.1 hope  precision --epsil 0.2 --maxrank 200  --blockiter 3
+//!     embed --csv "p2p-Gnutella08.txt" --symetric "true" validation [--centric] --nbpass 10 --skip 0.1 hope  precision --epsil 0.2 --maxrank 200  --blockiter 3
 //!
-//!     sketchnet --csv "p2p-Gnutella08.txt" --symetric "true" validation [--centric] --nbpass 10 --skip 0.1 hope  rank --targetrank 100  --nbiter 10
+//!     embed --csv "p2p-Gnutella08.txt" --symetric "true" validation [--centric] --nbpass 10 --skip 0.1 hope  rank --targetrank 100  --nbiter 10
 //!
-//!     sketchnet --csv wiki-Vote.txt --symetric false validation [--centric] --nbpass 20 --skip 0.15 sketching --decay 0.25 --dim 500 --nbiter 2
+//!     embed --csv wiki-Vote.txt --symetric false validation [--centric] --nbpass 20 --skip 0.15 sketching --decay 0.25 --dim 500 --nbiter 2
 //!
 //! The module can be launched (and it is recommended) by preceding the command by setting the variable RUST_LOG to info (normal information) or debug (to get related info)
 //! as for example :  *RUST_LOG=sketchnet=debug embed ....*
@@ -204,13 +204,17 @@ fn parse_validation_cmd(
         .expect("could not parse skip parameter");
     //
     let centric: bool = matches.get_flag("centric");
-
     if centric {
         log::info!("doing a centric auc pass after standard AUC link prediction");
     } else {
         log::info!("no centric pass on link prediction");
     }
     let vcmpr: bool = matches.get_flag("vcmpr");
+    if vcmpr {
+        log::info!("doing a vcmpr pass after standard AUC link prediction");
+    } else {
+        log::info!("no vcmpr pass on link prediction");
+    }
     //
     let validation_params = ValidationParams::new(delete_proba, nbpass, symetric, centric, vcmpr);
     //
@@ -279,6 +283,8 @@ fn parse_embedding_cmd(
 
 #[doc(hidden)]
 pub fn main() {
+    // TODO: to put in clap ? just for now select at compile time
+    let do_vcmpr = true;
     //
     println!("initializing default logger from environment ...");
     env_logger::Builder::from_default_env().init();
@@ -395,13 +401,13 @@ pub fn main() {
                .long("centric")
                .action(clap::ArgAction::SetTrue)
                .help("To ask for a centric validation pass after standard one, require no value"),
-        )
+            )
         .arg(
             Arg::new("vcmpr")          // do we process amino acid file, default is dna, pass --aa
                .long("vcmpr")
                .action(clap::ArgAction::SetTrue)
-               .help("To ask for a VCMPR and precision/recall validation pass after standard one, require no value"),
-        )
+               .help("To ask for a vcmpr validation pass after standard one, require no value"),
+            )
         .subcommand(hope_cmd.clone())
         .subcommand(sketch_cmd.clone());
 
@@ -424,7 +430,7 @@ pub fn main() {
     // ===================
     //
     let matches = Command::new("sketchnet")
-        .about("Efficient and Robust Network/Graph Embedding via High-Order Proximity Preservation or Recursive Sketching")
+        .about("Efficient and Robust Network Embedding via High-Order Proximity Preservation or Recursive Sketching")
         .arg_required_else_help(true)
         .arg(
             Arg::new("csvfile")
@@ -619,29 +625,29 @@ pub fn main() {
                     &f,
                 );
                 if params.do_centric() {
+                    if params.do_vcmpr() {
+                        // if vcmpr is asked we produce also standard precision and recall for comparison
+                        link::estimate_precision(
+                            &trimat.to_csr(),
+                            params.get_nbpass(),
+                            params.get_delete_fraction(),
+                            symetric_graph,
+                            &f,
+                        );
+                        
+                        link::estimate_vcmpr(
+                            &trimat.to_csr(),
+                            params.get_nbpass(),
+                            10,
+                            params.get_delete_fraction(),
+                            symetric_graph,
+                            &f,
+                        );
+                    }
                     //
                     link::estimate_centric_auc(
                         &trimat.to_csr(),
                         params.get_nbpass(),
-                        params.get_delete_fraction(),
-                        symetric_graph,
-                        &f,
-                    );
-                }
-                if params.do_vcmpr() {
-                    // if vcmpr is asked we produce also standard precision and recall for comparison
-                    link::estimate_precision(
-                        &trimat.to_csr(),
-                        params.get_nbpass(),
-                        params.get_delete_fraction(),
-                        symetric_graph,
-                        &f,
-                    );
-                    
-                    link::estimate_vcmpr(
-                        &trimat.to_csr(),
-                        params.get_nbpass(),
-                        10,
                         params.get_delete_fraction(),
                         symetric_graph,
                         &f,
@@ -742,30 +748,29 @@ pub fn main() {
                     // we compare with VCMPR
                     if validation_params.do_centric() {
                         log::info!("doing precision estimation normal and centric modes ");
+                        if validation_params.do_vcmpr() {
+                            
+                            //if vcmpr is asked we produce also standard precision and recall for comparison
+                            link::estimate_precision(
+                                &trimat.to_csr(),
+                                2,
+                                validation_params.get_delete_fraction(),
+                                symetric_graph,
+                                &f,
+                            );
+                            link::estimate_vcmpr(
+                                &trimat.to_csr(),
+                                2,
+                                10,
+                                validation_params.get_delete_fraction(),
+                                symetric_graph,
+                                &f,
+                            );
+                        }
                         //
                         link::estimate_centric_auc(
                             &trimat.to_csr(),
                             validation_params.get_nbpass(),
-                            validation_params.get_delete_fraction(),
-                            symetric_graph,
-                            &f,
-                        );
-                    }
-                    if validation_params.do_vcmpr() {
-                        //if vcmpr is asked we produce also standard precision and recall for comparison
-                        log::info!("About to call estimate_precision");
-                        link::estimate_precision(
-                            &trimat.to_csr(),
-                            2,
-                            validation_params.get_delete_fraction(),
-                            symetric_graph,
-                            &f,
-                        );
-                        log::info!("Precision finished");
-                        link::estimate_vcmpr(
-                            &trimat.to_csr(),
-                            2,
-                            10,
                             validation_params.get_delete_fraction(),
                             symetric_graph,
                             &f,
