@@ -619,29 +619,29 @@ pub fn main() {
                     &f,
                 );
                 if params.do_centric() {
+                    if params.do_vcmpr() {
+                        // if vcmpr is asked we produce also standard precision and recall for comparison
+                        link::estimate_precision(
+                            &trimat.to_csr(),
+                            params.get_nbpass(),
+                            params.get_delete_fraction(),
+                            symetric_graph,
+                            &f,
+                        );
+                        
+                        link::estimate_vcmpr(
+                            &trimat.to_csr(),
+                            params.get_nbpass(),
+                            10,
+                            params.get_delete_fraction(),
+                            symetric_graph,
+                            &f,
+                        );
+                    }
                     //
                     link::estimate_centric_auc(
                         &trimat.to_csr(),
                         params.get_nbpass(),
-                        params.get_delete_fraction(),
-                        symetric_graph,
-                        &f,
-                    );
-                }
-                if params.do_vcmpr() {
-                    // if vcmpr is asked we produce also standard precision and recall for comparison
-                    link::estimate_precision(
-                        &trimat.to_csr(),
-                        params.get_nbpass(),
-                        params.get_delete_fraction(),
-                        symetric_graph,
-                        &f,
-                    );
-                    
-                    link::estimate_vcmpr(
-                        &trimat.to_csr(),
-                        params.get_nbpass(),
-                        10,
                         params.get_delete_fraction(),
                         symetric_graph,
                         &f,
@@ -742,28 +742,29 @@ pub fn main() {
                     // we compare with VCMPR
                     if validation_params.do_centric() {
                         log::info!("doing precision estimation normal and centric modes ");
+                        if validation_params.do_vcmpr() {
+                            
+                            //if vcmpr is asked we produce also standard precision and recall for comparison
+                            link::estimate_precision(
+                                &trimat.to_csr(),
+                                2,
+                                validation_params.get_delete_fraction(),
+                                symetric_graph,
+                                &f,
+                            );
+                            link::estimate_vcmpr(
+                                &trimat.to_csr(),
+                                2,
+                                10,
+                                validation_params.get_delete_fraction(),
+                                symetric_graph,
+                                &f,
+                            );
+                        }
                         //
                         link::estimate_centric_auc(
                             &trimat.to_csr(),
                             validation_params.get_nbpass(),
-                            validation_params.get_delete_fraction(),
-                            symetric_graph,
-                            &f,
-                        );
-                    }
-                    if validation_params.do_vcmpr() {
-                        //if vcmpr is asked we produce also standard precision and recall for comparison
-                        link::estimate_precision(
-                            &trimat.to_csr(),
-                            2,
-                            validation_params.get_delete_fraction(),
-                            symetric_graph,
-                            &f,
-                        );
-                        link::estimate_vcmpr(
-                            &trimat.to_csr(),
-                            2,
-                            10,
                             validation_params.get_delete_fraction(),
                             symetric_graph,
                             &f,
